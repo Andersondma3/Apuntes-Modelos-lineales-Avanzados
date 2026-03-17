@@ -1,0 +1,140 @@
+---
+title: "Manual para el curso Modelos Lineales Avanzados (XS-0125) Primer Examen"
+author: "Anderson Martínez, Sebastián Calvo, Justin Zhu"
+output:
+  pdf_document:
+    toc: true          # Esto activa el índice
+    toc_depth: 3       # Indica hasta qué nivel de títulos mostrar (H1, H2, H3)
+    number_sections: true # Opcional: enumera automáticamente tus secciones (1, 1.1, etc.)
+---
+
+
+
+# Modelos Mixtos 
+
+## Efectos fijos 
+
++ En un factor de efectos fijos el interés está sólo en aquellos niveles que están siendo usados en el experimento y sus efectos.  Todas las conclusiones de están limitadas a los tratamientos que están siendo observados en el experimento. 
+
++ Se asume que el experimentador ha considerado para el factor todos los posibles niveles que éste puede tomar o se escogieron deliberadamente, no de forma aleatoria. 
+
++ Ejemplo: la temperatura (10º, 16º, 27º) sería un factor fijo si esas fueran las únicas temperaturas de interés para el investigador. 
+
+## Efectos aleatorios 
+
++ En un factor de efectos aleatorios se asumen que se ha considerado tan solo una muestra de los posibles niveles que éste puede tomar. 
+
++ El efecto que tiene cada nivel de ese factor se considera proveniente de una distribución de efectos cuya esperanza es cero. 
+
++ Los efectos de los niveles escogidos son aleatorios en el sentido de que son una muestra de esa distribución de efectos.
+
+**ATENCIÓN AL SIGUIENTE EJEMPLO EXPUESTO EN CLASE**
+
+Ejemplo: la escuela es analizada como un factor que puede influir sobre el nivel de aprendizaje y se han considerado en el experimento solo 10 de las muchas escuelas posibles. La escuela es un factor aleatorio en el experimento y sus efectos provienen de una distribución.Además se toma en cuenta otro factor sobre si la escuela es privada o pública.
+
+```{r, echo=FALSE}
+# 1. Configurar el lienzo para tener 2 gráficos (1 fila, 2 columnas)
+par(mfrow = c(1, 2)) 
+
+# --- GRÁFICO 1: LADO IZQUIERDO (Con curva azul) ---
+x <- seq(0, 30, length=200)
+
+# Dibujar la base (una curva invisible para fijar los ejes)
+plot(x, dnorm(x, 15, 4), type="n",main = "Escuela Pública", ylab="Densidad", xlab="-", ylim=c(0, 0.25))
+
+# Curvas negras (Normales)
+lines(x, dnorm(x, 8, 2), col="black", lwd=3)
+lines(x, dnorm(x, 11, 2), col="black", lwd=3)
+lines(x, dnorm(x, 18, 2), col="black", lwd=3)
+
+# Curva resaltada (Azul)
+lines(x, dnorm(x, 14, 4), col="skyblue1", lwd=3.5)
+
+
+# --- GRÁFICO 2: LADO DERECHO (Con curva roja) ---
+# Dibujar la base
+plot(x, dnorm(x, 15, 4), type="n", main = "Escuela Privada", ylab="Densidad", xlab="-", ylim=c(0, 0.25))
+
+# Curvas negras (Normales)
+lines(x, dnorm(x, 12, 2), col="blue3", lwd=3)
+lines(x, dnorm(x, 22, 2), col="blue3", lwd=3)
+lines(x, dnorm(x, 25, 2), col="blue3", lwd=3)
+
+# Curva resaltada (Roja)
+lines(x, dnorm(x, 19, 3.5), col="red3", lwd=3.5)
+
+# Volver a la configuración normal de 1 solo gráfico por si sigues trabajando
+par(mfrow = c(1, 1))
+```
+
+*Descripción del gráfico*
+
+
+**Negro:** La distribución de los grupos de una escuela pública.
+
+**Azul:** La distribución de los grupos de una escuela privada .
+
+**Celeste:** La distribución de las escuelas públicas.
+
+**Rojo:** La distribución de las escuelas privadas.
+
+*Unidades del nivel 1*
+
+Son los grupos de las escuelas, las distribuciones de este nivel son las de  color  **Negro** y **Azul**. Es decir cada distrobución corresponde a una escuela.
+
++ La variable respuesta $(Y)$ se mide en el nivel 1,la distribución es la siguiente $f(Y|\text{Escuela})$
+
++ $\mu_j$: Es el promedio de una escuela (una distribución negra o azul). Todas las  $\mu_j$ se unen y forman las curvas de los colores **Celeste** y **Rojo**
+
++ $\sigma^2_j$: Es la varianza del error, esta se encuentra en el nivel 1.
+
++ Debido a la homocedasticiadad podemos asumir que $\sigma^2_j$ es constante.
+
+
+*Unidades del nivel 2*
+
+Este nivel corresponde a las medias de todas las escuelas, cada tipo de escuela tiene una distribución, **Celeste** para las escuelas pública y **Rojo** para las escuelas privadas. Puede ser que las varianzas de estas distribuciones sean iguales, pero no necesarimente sucede ese caso, de hecho es muy utópico pensar que todo tenga la misma varianza.
+
++ Los $\mu_j$ son los que forman las distribución en el nivel 2
+
++ La forma de la distribución es $f(\mu_j|\text{Tipo de escuela})$
+
+*Conceptos importantes*
+
+**Error:** Es la distancia de un punto de la distribución a su media, por ejemplo imagine un punto de una de las distribuciones negras a su media.
+
+
+**Efecto:** Un ejemplo de efecto es la distancia entre la media de una de las distribuciones **negras** con la media de la distribución **celeste**. Como hay escuelas infitas, esto implica que hay efectos infinitos.
+
+Sea $\gamma$ el efecto, este se distribuye como $\gamma \sim f(0,\sigma_\gamma^2)$. Para cada uno de los tipos de escuelas hay infinitos efectos con una cierta varianza, en donde ambos tipos de escuela pueden tener la misma.
+
+## En resumen:
+
++ Efectos fijos son los factores 
+
++ Efectos aleatorios son las unidades 
+
+Cuando las unidades están en el nivel 1, los experimentos son como los del curso pasado, en cambio cuando estas unidades se encuentran del nivel 2 hacia arriba a esto le llamaremos como un modelo mixto. Estos corresponden a lo que se llama un modelo multinivel.
+
+*Notas:*
+
++ Normalmente a los efectos aleatorios se le asigna un factor fijo
+
++ La unidad normalmente contiene efectos aleatorios.
+
++ Siempre tienen que haber unidades aleatorias en el nivel 1
+
+
+
+| **Datos agrupados** | **Medidas repetidas** | **Datos longitudinales** |
+| :--- | :--- | :--- |
+| * La variable dependiente se mide una vez por cada sujeto. | * La variable dependiente se mide más de una vez en la misma unidad de análisis. | * La variable dependiente se mide en muchos momentos a lo largo del tiempo, para cada unidad de análisis. |
+| * Las unidades de análisis se agrupan (clusters de unidades). | * La medición se realiza en varios niveles de un factor de medidas repetidas. | |
+
+
+
+
+
+```{r, eval=FALSE}
+# Este código se verá bonito en el manual, pero R NO lo ejecutará.
+modelo_complejo <- lm(y ~ x1 + x2, data = mis_datos)
