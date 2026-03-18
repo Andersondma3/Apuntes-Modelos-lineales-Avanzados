@@ -124,14 +124,97 @@ Cuando las unidades están en el nivel 1, los experimentos son como los del curs
 
 + Siempre tienen que haber unidades aleatorias en el nivel 1
 
-
+# Tipos y estructuras de datos 
 
 | **Datos agrupados** | **Medidas repetidas** | **Datos longitudinales** |
 | :--- | :--- | :--- |
 | * La variable dependiente se mide una vez por cada sujeto. | * La variable dependiente se mide más de una vez en la misma unidad de análisis. | * La variable dependiente se mide en muchos momentos a lo largo del tiempo, para cada unidad de análisis. |
 | * Las unidades de análisis se agrupan (clusters de unidades). | * La medición se realiza en varios niveles de un factor de medidas repetidas. | |
 
+# Diferencia entre un modelo con bloques y un modelo mixto.
 
+Es un modelo mixto, cuando hay dos factores o más en el nivel 1, en un diseño de dos niveles o más. Por el contrario cuando hay dos niveles, pero el nivel 1 solo tiene un factor es un diseño de bloques. Además si hay un factor en el nivel dos, también hay que usar modelos mixtos.
+
+# Parcelas divididas
+
+Cuando el diseño es de dos niveles con un factor en cada nivel, al mismo se le puede llamar como parcelas divididas. Un ejemplo de esto sería un experimento que quiere comparar el crecimiento de dos especies de papá en dos tipos de clima. En donde se siembran dos especies de papas en fincas que se encunetran en un clima frió y en otras que tienen un clima caliente.
+
+## Diferencias entre modelo mixto y modelo lineal clásico.
+
++ El modelo de regresión lineal simple requiere de formular muchos supuestos para que su uso sea adecuado.
+
++ Los modelos lineales mixtos permiten tomar en cuenta la violación a algunos de los supuestos del modelo lineal simple.
+
++ En la práctica, permiten modelar situaciones comunes en las ciencias sociales y en otras ciencias, como la presencia de estructuras jerárquicas.
+
+
++ Los Modelos Lineales Mixtos Generalizados (GLMM) incluyen técnicas de modelación no solo para variables continuas, sino también nominales, ordinales, conteos, respuestas asimétricas, entre otras.
+
+
+## Modelos lineales mixtos
+
+Modelos para variables continuas en los que los residuos se distribuyen normalmente, pero podrían no ser independientes o no tener varianza constante.
+
+El término “lineal” proviene del hecho de que estos modelos son lineales en los parámetros.
+
+El término “mixto” es debido a que las covariables pueden incluir un “mix” de efectos fijos y efectos aleatorios.
+
+
+## El modelo 
+
+El efecto de la unidad i-ésima del nivel 2 se denota como: $\delta_i$.
+
+La j-ésima observación dentro de la i-ésima unidad del nivel 2 se puede expresar como:
+
+$$y_{ij} = \beta_0+\delta_i+\varepsilon_{ij}$$
+**La esperanza condicional dado la unidad del nivel dos es:**
+
+$$E[Y|i] = \mu_i=\beta_0+\delta_i$$
+donde:
+
++ $\beta_0 = \mu$ (Intercepto)
+
++ $\delta_i = \mu_i-\mu$ (Definición de error)
+
+## Distribuciones del modelo 
+
+1. Se consideran dos fuentes de variabilidad:
+
++ La variación de unidad del nivel 2 a una unidad del nivel 2 (inter sujeto): $\sigma^2_\delta$
+
++ La variación entre los datos dentro de una misma unidad de nivel 2.
+
+*Tomando como ejemplo el diseño de las escuelas vistas en clase*
+
+$$V(Y|\text{escuela}) = V(error)$$
+*Nota:* La definción de error se encuentra arriba.
+
+### Apuntes importantes de los errores
+
++ Los errores se distribuyen como $\varepsilon \sim N(0,\sigma_\varepsilon)$
+
++ Debido a que hay homocesticidad yo los puedo juntar a todos los errores. La función de unir todos los errores es para observar la normalidad.
+
+### ¿¿Cuántas varianzas hay en cada nivel?
+
+**Existen dos en el ejemplo de las escuelas:**
+
+$V(\varepsilon):$ Esta corresponde a una varianza por cada escuela, pero si hay homocesasticidad habría solo una. En un caso extremo se puede tener $V(\varepsilon|\text{Pública}) \neq V(\varepsilon|\text{Privada})$
+
+$V(\mu|\text{Tipo de escuela}):$ Hay dos una para la escuela pública y otra para la privada. De igual forma si hay homocedasticidad solo habría una, es decir $V(\mu|\text{Pública})=V(\mu|\text{Privada})$
+
+2. Los efectos de las unidades del nivel 2 son aleatorias y se obtienen de una distribución normal con media cero:
+
+
+$$\delta \sim N(0,\sigma^2_\delta)$$
+
+3. La distribución condicional de la respuesta dado la unidad del nivel 2 también es normal:
+
+$$Y|i\sim N(\mu_i,\sigma^2_\varepsilon)$$
+
+4. La variancia total de la respuesta es la suma de la variancia de los componentes aleatorios más la variancia del error:
+
+$$V(Y) = \sigma_\delta^2+\sigma^2_\varepsilon$$
 
 
 
