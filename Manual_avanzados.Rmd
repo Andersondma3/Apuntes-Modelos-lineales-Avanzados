@@ -139,7 +139,7 @@ Es un modelo mixto, cuando hay dos factores o más en el nivel 1, en un diseño 
 
 Cuando el diseño es de dos niveles con un factor en cada nivel, al mismo se le puede llamar como parcelas divididas. Un ejemplo de esto sería un experimento que quiere comparar el crecimiento de dos especies de papá en dos tipos de clima. En donde se siembran dos especies de papas en fincas que se encunetran en un clima frió y en otras que tienen un clima caliente.
 
-## Diferencias entre modelo mixto y modelo lineal clásico.
+# Diferencias entre modelo mixto y modelo lineal clásico.
 
 + El modelo de regresión lineal simple requiere de formular muchos supuestos para que su uso sea adecuado.
 
@@ -151,7 +151,7 @@ Cuando el diseño es de dos niveles con un factor en cada nivel, al mismo se le 
 + Los Modelos Lineales Mixtos Generalizados (GLMM) incluyen técnicas de modelación no solo para variables continuas, sino también nominales, ordinales, conteos, respuestas asimétricas, entre otras.
 
 
-## Modelos lineales mixtos
+# Modelos lineales mixtos
 
 Modelos para variables continuas en los que los residuos se distribuyen normalmente, pero podrían no ser independientes o no tener varianza constante.
 
