@@ -159,8 +159,19 @@ El término “lineal” proviene del hecho de que estos modelos son lineales en
 
 El término “mixto” es debido a que las covariables pueden incluir un “mix” de efectos fijos y efectos aleatorios.
 
+## Sobre los supuestos 
 
-## El modelo 
+Los modelos mixtos permiten manejar estructuras de variabilidad que no son homogéneas, por lo que se pueden usar cuando hay homocedasticidad. En un ANOVA no se necesita linealidad, en cambio cuando hay covaribales, variables numéricas como en regresión, en los modelos mixtos necesitamos linealidad. Si sucede el caso de que esta última no se da, debemos realizar una transformación. 
+
+En un caso extremo donde los datos se comporten de una forma muy extraña, lo que podemos hacer es convertir la variable continua en una forma categórica, de manera que se parte la variable continua y se forman las categorías con dichos intervalos. Además para los modelos mixtos el hecho de que las variables predictoras no estén correlacionadas, lo que conocemos en otros cursos como el supuesto de no multicolinealidad, para que así los errores estándar no se inflen y las variables puedan explicar adecuadamente el modelo.
+
+Hay algunos modelos que no tienen una distribución normal, por lo que se usa una distribución conocida con la que se realiza dicho modelo, debido a que es muy díficil realizar las estimaciones por medio de una distribución normal. Por ejemplo un conteo de autos durante cada hora, el cual normalmente se modela con una Poisson. A esto se le llama Modelos Lineales Gneralizados, los mismo se utlizan cuando la respuesta no es normal, este tema se abordará más adelante en enl curso.Por último sino se cumple la independencia de la unidades de la resuesta y esa la variable $Y$ nos se comporta como una normal, pasamos a los *Modelos Lineales Mixtos Generalizados*.
+
+*Nota:* En un experimento la multicolinealidad automáticamente se cumple.
+
+
+
+# El modelo 
 
 El efecto de la unidad i-ésima del nivel 2 se denota como: $\delta_i$.
 
@@ -195,7 +206,7 @@ $$V(Y|\text{escuela}) = V(error)$$
 
 + Debido a que hay homocesticidad yo los puedo juntar a todos los errores. La función de unir todos los errores es para observar la normalidad.
 
-### ¿¿Cuántas varianzas hay en cada nivel?
+### Distribuciones de cada nivel
 
 **Existen dos en el ejemplo de las escuelas:**
 
@@ -215,6 +226,102 @@ $$Y|i\sim N(\mu_i,\sigma^2_\varepsilon)$$
 4. La variancia total de la respuesta es la suma de la variancia de los componentes aleatorios más la variancia del error:
 
 $$V(Y) = \sigma_\delta^2+\sigma^2_\varepsilon$$
+**A continuación se representan las distribuciones por medio de una figura **
+
+```{r, echo=FALSE, fig.width=7, fig.height=5.5}
+# 1. Configuracion para curvas "pegadas"
+set.seed(123)
+x <- seq(0, 50, length=500)
+n_curvas <- 10
+
+# AJUSTES CLAVE:
+variabilidad_interna <- 3   # Mas anchas (antes era 2)
+distancia_entre_medias <- 0.68 # Mas cerca una de otra (antes era 4)
+
+# Generar medias muy cercanas
+medias_individuales <- seq(15, 15 + (n_curvas-1)*distancia_entre_medias, length.out=n_curvas)
+
+# 2. Iniciar el grafico
+plot(x, x, type="n", ylim=c(0, 0.18), xlim=c(5, 30),
+    main="Notación explicada con curvas",
+     ylab="Densidad")
+
+# 3. Dibujar las 10 curvas pequeñas (Azules con transparencia)
+for(i in 1:n_curvas) {
+  lines(x, dnorm(x, mean=medias_individuales[i], sd=variabilidad_interna), 
+        col=rgb(0, 0.4, 0.8, 0.5), lwd=3) 
+}
+
+# 4. Distribucion Poblacional (Curva roja)
+gran_media <- mean(medias_individuales)
+# La variabilidad total es la suma de varianzas (Ley de varianza total)
+sd_total <- sqrt(var(medias_individuales) + variabilidad_interna^2)
+
+lines(x, dnorm(x, mean=gran_media, sd=sd_total), 
+      col="darkred", lwd=4)
+
+```
+
+donde: 
+
++ **Curvas azules* *corresponden a $Y|i\sim N(\mu_i,\sigma^2_\varepsilon)$
+
++ **Curva Roja** corresponde a $\mu_i \sim N (\mu, \sigma^2)$, sin embargo se quiere calcular el efecto que este es $\delta = \mu_i-\mu$, el cual se distribuye como $\delta \sim N(0,\sigma^2_\delta)$.
+
+*Nota:* Es lo mismo decir $V (\delta_i) = V(\mu_i)$
+
+### ¿Cuándo se nos habla de verificar la normalidad a que se refiere?
+
+Se refiere a evaluar el supuesto de normalidad en la distribución  $Y|i\sim N(\mu_i,\sigma^2_\varepsilon)$, la explicación de esta la puede encontratrar en la parte de arriba. Si tenemos muy pocos efectos en las muestra y queremos probar normalidad, la debemos asumir porque para probar esto se debe tener una cantidad considerable de observaciones. Sin emabargo podemos unir todos los residuales para probar normalidad en el caso de que se cumple el supuesto de *Homocedasticidad*
+
+
+```{r, echo=FALSE, fig.width=8, fig.height=6}
+# 1. Parametros estadisticos
+x <- seq(10, 50, length=500)
+mu_global <- 32      
+mu_grupo  <- 22       
+sd_global <- 7
+sd_grupo  <- 3
+
+# 2. Grafico base
+plot(x, dnorm(x, mu_global, sd_global), type="l", col="red", lwd=3,
+     ylim=c(-0.02, 0.16), xlab="Variable (X)", ylab="Densidad",
+     main="Descomposicion de Distancias Horizontales (Delta y Epsilon)", bty="l")
+
+# 3. Curva de grupo (Azul)
+lines(x, dnorm(x, mu_grupo, sd_grupo), col="blue", lwd=2)
+
+# 4. Datos para el residual (Epsilon horizontal)
+punto_x_obs <- 25
+punto_y_obs <- 0.08 # Altura para el punto en el espacio
+
+# --- DELTA: DISTANCIA HORIZONTAL (Grupo vs Global) ---
+y_delta <- -0.008
+segments(mu_grupo, y_delta, mu_global, y_delta, col="darkgreen", lwd=3, xpd=TRUE)
+text((mu_grupo + mu_global)/2, y_delta - 0.008, expression(delta), col="darkgreen", cex=2)
+
+# --- EPSILON: DISTANCIA HORIZONTAL (Dato vs Grupo) ---
+y_epsilon <- 0.05
+segments(mu_grupo, y_epsilon, punto_x_obs, y_epsilon, col="purple", lwd=3, xpd=TRUE)
+text((mu_grupo + punto_x_obs)/2, y_epsilon - 0.008, expression(epsilon), col="purple", cex=2)
+
+# 5. Lineas de proyeccion vertical (Referencia)
+# Referencia Media Global
+segments(mu_global, y_delta, mu_global, dnorm(mu_global, mu_global, sd_global), lty=3, col="red")
+# Referencia Media Grupo
+segments(mu_grupo, y_epsilon, mu_grupo, dnorm(mu_grupo, mu_grupo, sd_grupo), lty=3, col="blue")
+# Referencia Dato Observado
+segments(punto_x_obs, y_epsilon, punto_x_obs, punto_y_obs, lty=3, col="black")
+
+# 6. Punto observado
+points(punto_x_obs, punto_y_obs, pch=19, col="black", cex=1)
+
+# Leyenda
+legend("topright", 
+       legend=c("Media Global (mu)", "Media Grupal (mu_i)", "Dato Observado"),
+       col=c("red", "blue", "black"), lwd=2, bty="n")
+```
+
 
 
 
