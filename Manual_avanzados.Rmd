@@ -554,8 +554,12 @@ bloques en un experimento.
 
 # Estimación de modelos mixtos en r  
 
+```{r}
+library(lme4) #librería para modelos mixtos
+```
+
+
 ```{r, eval=FALSE}
-library(lme4)
 mod1=lmer(prod~(1|lote),data=base)
 ```
 
@@ -616,6 +620,97 @@ confint(mod1)
 ```
 
 *Nota:* Se le llama `sigma` a la desviación estándar del error, `sig01` es la del lote. Para obtener la varianza recuerde elevar al cuadrado los resultados. Además note que los intervalos no son simétricos, debido  a que el $\pm$ en el intervalo de confianza de varianzas no se utliza. Si el limite inferior da cero quiere decir que el interavlo no se tuvo que haber realizado, debido a que la varianza puede ser cero.
+
+**Simulación de los deltas** (Forma1)
+
+```{r}
+sd.lote=42 #sigma delta
+n=6 #Número de lotes
+med=1500
+ef.lote=rnorm(n,0,sd.lote) #simulación de los deltas
+(muj=med+ef.lote)
+```
+**Simulación de los deltas** (Forma2, un poco más directa)
+
+
+```{r}
+sd.lote1=42 #sigma delta
+n=6 # Número de lotes
+med=1500
+(muj.2=rnorm(n,med,sd.lote1)) #simulación de los deltas
+```
+
+
+**Simulación de la respuesta**
+
+```{r}
+n = 6
+sd.res = 49.51
+r = 5 # Número de observaciones por lote
+mujs = rep(muj,each=r)
+y = rnorm(n*r,mujs,sd.res)
+```
+
+
+**Obtener los efectos alteatorios ($\delta$) de forma directa**
+
+```{r, eval=FALSE}
+deltas = ranef(mod)
+```
+
+
+Para crear la variable Lote (la variable del nivel 2), se realiza de la siguiente manera
+
+```{r, eval=FALSE}
+Lote2 = factor(rep(1:n, each = r))
+```
+
+### Código para las diferencias entre intervalos de confianza
+
+```{r, eval=FALSE}
+ci = confint(mod)
+ci = t(ci)
+diff(ci)
+```
+
+
+Con esta diferencia podemos ver potencia,el ancho del intervalo. Para ello se tiene que simular varias veces y guardar esos resultados, para analizar cada uno de los casos anteriores. Para al final sacar el promedio del ancho del intervalo. De manera que cambiando `r` y `n` se llegue a un ancho del intervalo deseado.
+
+### Simulación de intervalos de confianza
+
+```{r}
+n=6       # Número de Lotes (Nivel 2)
+r=5         # Unidades por Lote (Nivel 1)
+k=10    # Cuántas de iteraciones
+
+sd.res=49.51
+muj=1500     # Media global de referencia
+anchos=numeric(k) # Vector vacío para guardar los resultados, de forma más rápida
+
+for(i in 1:k) {
+  # 1. Generamos los efectos de los lotes
+  # Suponemos una desviación estándar entre lotes 
+  sd.lote=15 
+  efectos_lote=rnorm(n, 0, sd.lote)
+  
+  # 2. Generamos la respuesta 
+  mujs=rep(muj + efectos_lote, each = r)
+  y=rnorm(n * r, mujs, sd.res)
+  Lote2=factor(rep(1:n, each = r))
+  
+  # 3. Ajustamos el modelo y calculamos el IC
+  # Se usa Wald y parm para que sea rápido en las 100 iteraciones
+  mod1.3=lmer(y ~ 1 + (1|Lote2), control = lmerControl(calc.derivs = FALSE))
+  CI=confint(mod1.3, parm = "(Intercept)", method = "Wald")
+  
+  # 4. Guardamos la diferencia (el ancho)
+  anchos[i]=diff(as.vector(CI))
+}
+
+promedio_ancho=mean(anchos)
+
+print(c("El promedio del ancho es",round(promedio_ancho,3)))
+```
 
 
 ```{r, eval=FALSE}
