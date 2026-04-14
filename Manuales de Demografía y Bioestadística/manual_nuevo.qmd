@@ -1,8 +1,8 @@
 ---
 title: "Manual de Demografía y Bioestadística"
 author: 
-  - name: "Fabián Almirall Marchena"
-    affiliation: "Universidad de Costa Rica"
+  - name: "Fabián Almirall, Anderson Martínez, Sebastián Calvo, Justin Zhu"
+    affiliation: "Universidad de Costa Rica, Escuela de Estadística"
 date: last-modified
 lang: es
 format:
@@ -28,13 +28,12 @@ format:
       - left=30mm
       - right=30mm
     header-left: "Manual de Demografía"
-    header-right: "Fabián Almirall"
-    footer-center: "[page]"
+    header-right: "Fabián Almirall, Anderson Martínez, Sebastián Calvo, Justin Zhu"
 ---
 
 # Composición de la Población
 
-## 1. Razón de masculinidad
+## Razón de masculinidad
 
 También es llamada razón de sexo en algunos casos.
 
@@ -58,7 +57,7 @@ Razon_M = (pob_masc/pob_fem)*100
 
 -   En la mayoría de las poblaciones humanas en las que se haya erradicado la mortalidad materna, la curva de razón de masculinidad por edad sigue un patrón descendente claro.
 
-    ```{r, echo=FALSE, warning=FALSE}
+    ```{r , include = FALSE}
     library(readxl)
     library(tidyverse)
     base = read_excel("C:/Users/Ander/Documents/V ciclo statistics/Demografía/lab composición población/razones_lab1.xlsx") #Colocar dirección cade vez que se corre todo
@@ -88,10 +87,6 @@ ggplot(df_long, aes(x = Edadsimple, y = Razon_Masculinidad, color = factor(Anio)
     color = "Año"
   ) +
   theme_minimal()
-
-
-
-# Gráfico
 ```
 
 ```{r, warning=FALSE}
@@ -112,9 +107,9 @@ ggplot(df_long, aes(x = Edadsimple, y = Razon_Masculinidad, color = factor(Anio)
   theme_minimal()
 ```
 
-## 2. Pirámidez poblacionales
+## Pirámidez poblacionales
 
- Ejemplo de código para las piramides en r
+Ejemplo de código para las piramides en r
 
 ``` r
 #Creación delas piramides
@@ -123,7 +118,7 @@ geom_bar(stat="identity",width=1)+
 coord_flip()
 ```
 
-## 3. Subgrupos Especiales
+## Subgrupos Especiales
 
 -   Población a la edad 0: Razón de masculinidad  105
 
@@ -133,7 +128,7 @@ coord_flip()
 
 -   Población de 65 años y más: Población dependiente en edades mayores
 
-## 4. Razones de dependencia
+## Razones de dependencia
 
 Fórmulas:
 
@@ -174,7 +169,7 @@ $$
 
 Interpretación:
 
-## 5. Calidad de la Información sobre composición por sexo y edad
+## Calidad de la Información sobre composición por sexo y edad
 
 Cuando se usan censos de población y encuestas para analizar la distribución por edad, la verdadera distribución está afectada por distintos problemas que afectan la calidad del dato:
 
@@ -192,7 +187,7 @@ Y existen medidas para analizar la calidad en la declaración de la edad:
 
 -   Índice de Myers
 
-## 6. Índice de Whipple
+##  Índice de Whipple
 
 El índice de Whipple se usa para medir la atracción de un dígito final en la declaración de la edad, sobre todo el 5 y el 0. Y este utiliza el supuesto de que los dígitos finales de las edades siguen una distribución uniforme.
 
@@ -235,7 +230,7 @@ indice_whipple <-  base %>%
   )
 ```
 
-## 7. Índice de Myers
+## Índice de Myers
 
 El índice de Myers también se usa para analizar preferencia hacia algún dígito y supone también que los los dígitos finales en las edades siguen una distribución uniforme.
 
@@ -243,6 +238,8 @@ Fórmula:
 
 $$
 M_j = (j + 1) * v_j + (10 - j) * v'_j\\[35pt]
+$$
+$$
 I_M = 100 * \sum \left| \frac{M_j}{\sum M_j} - 0.1 \right|
 $$
 
@@ -255,7 +252,7 @@ Interpretación:
 | 15 a 29.99  | Alta concentración de un dígito     |
 | 30 a más    | Muy alta concentración de un dígito |
 
-Código en r
+Indice de Myers en r
 
 ``` r
 # Rango de edades: 10 a 79
@@ -287,64 +284,23 @@ indice_myers_final <- myers_calculo %>%
     Porcentaje_Real = abs((m_j / Suma_Total_Mezclada)-0.1)) %>% summarise(indice = sum(Porcentaje_Real)*100)
 ```
 
-Quarto enables y
 
-``` r
-
-
-
-
-base <- read.csv("~/Académico/2026/Ciclo I/Estadística/Introducción a la Demografía y Bioestadística/Presentaciones y temas/Clase 3/consumo_y_estatura.csv")
-
-
-summary(base)
-
-
-# Se calcula el promedio de las calorias
-
-prom.calorias = mean(base$hatcalor, na.rm = T)
-
-# Se hace el modelo de regresión}
-
-mod = lm(base$hatcalor ~ base$tallam, base)
-
-# Se calculan las nuevas calorías 
-
-nuevas.calorias = prom.calorias + mod$res
-
-
-
-
-
-# Se calcula la prevalencia
-
-prevalencia.bruta  = round(100*(mean(base$hatcalor>=2100, na.rm = T)))
-
-prevalencia.bruta
-library(car)
-
-crPlots(mod)
-summary(mod$res)
-```
-
-El supuesto más importante es el de linealiedad, (che3carlo luego )
+El supuesto más importante es el de linealiedad
 
 ## Laboratorio de exposición al riesgo
 
 ``` r
 
 library(dplyr)
-library(lubridate)
+library(lubridate) 
 
-base <- read.csv("~/Académico/2026/Ciclo I/Estadística/Introducción a la Demografía y Bioestadística/Asignaciones/Lab; Exposición al riesgo/muestrapob.csv")
-
+# Conteo de muertes de una base de datos
 base_def = base %>% 
   filter(murio == 1) %>% 
   summarise(numero_muertes= n()) 
 
-base_def
 
-
+# Filtrado de muertes antes de julio 2015
 base_julio2015 <- base %>% 
   filter(anyodefun == 2015 & mesdefun == 7 | is.na(anyodefun)) %>% 
   summarise(tasa_mortalida = (sum(murio == 1)/n())*1000)
@@ -408,17 +364,32 @@ $$
 N_{t'} = N_{pivote}\cdot(1+r_a*(t'))
 $$
 
+```r
+r <- (1/t)*((N_final/N_0)-1) #La fórmula del t se encuentra más abajo 
+
+N_t = N_pivote * (1 + r*t_prima) #t_prima es diferente de t
+```
+
 ### Modelo de crecimiento geométrico
 
 Cálculo de tasa $r_g=\left( \frac{N_{\text{F}}}{N_0}  \right)^{1/t}-1$
 
 $$N_{t'} = N_{pivote} (1 + r_g)^{t'}$$
+```r
+r = (N_final/N_0)^(1/t) -1 #La fórmula del t se encuentra más abajo 
+N_t = N_pivote * (1 + r)^t_prima
+```
 
 ### Modelo de crecimiento exponencial
 
 Cálculo de tasa $r_e=\frac{1}{t}\ln\left( \frac{N_{\text{F}}}{N_0}  \right)$
 
 $$N_{t'} = N_{pivote} \cdot exp({r_e\cdot(t'))} = N_{pivote}\cdot e^{(r_e\cdot(t'))}$$
+
+``` r
+r = log(N_f / N_0) (1/t) #La fórmula del t se encuentra más abajo 
+N_t = N_pivote * exp(r * t_prima)
+```
 
 ### Cálculo del $t$
 
@@ -437,3 +408,14 @@ t'(2) = (Año_\text{t'(2)}-Año_\text{pivote})-\frac{(Mes_\text{t'(2)}-Mes_\text
 $$
 
 **Observación:** Para pivotear se pueden tomar cualquier tiempo de población. En teoría no deberían haber diferencias entre los resultados las proyecciones.
+
+Ejemplo en r del código para calcular los $t$ por medio de lubridate  
+
+``` r
+fecha0 = ymd("2020-01-01")
+fecha_obj = ymd("2030-07-01") #Fecha de la estimación
+t = as.numeric(difftime(fecha_obj, fecha0, units = "days")) / 365.25 
+#Esta fórmula aplica para cualquier t solo cambian las fechas
+
+```
+
