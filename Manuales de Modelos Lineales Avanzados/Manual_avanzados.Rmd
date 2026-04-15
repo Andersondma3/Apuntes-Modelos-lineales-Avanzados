@@ -1,6 +1,6 @@
 ---
 title: "Manual para el curso Modelos Lineales Avanzados (XS-0125) Primer Examen"
-author: "Anderson Martínez, Sebastián Calvo, Justin Zhu"
+author: "Anderson Martínez, Sebastián Calvo, Justin Zhu, Fabián Almirall"
 output:
   pdf_document:
     toc: true
@@ -401,7 +401,7 @@ $$E[Y|ij] = \mu_{ij} = \beta_0+\tau_i+\delta_i+(\tau\delta)_{ij}$$
  
 + $\tau_i$ es fijo, ya que este depende de la restricción que elijamos (suma nula o referencia)
 
-
+## Gráficos de interacción
 
 *A continuación se le presenta un ejemplo de como se ve gráficamente un modelo con / sin interacción*
 
@@ -427,19 +427,108 @@ datos$Trig_Int <- 150 + as.numeric(datos$Maquina)*30 + as.numeric(datos$Dia)*6 +
 p1 <- xyplot(Trig_NoInt ~ Maquina, groups = Dia, data = datos,
              type = c("p", "a"), lwd=2,
              auto.key = list(columns = 4, title = "Día", cex=0.8),
-             main = "Escenario A: CON INTERACCIÓN\n(Tendencias Cruzadas)",
+             main = "Escenario con interacción",
              ylab = "Triglicéridos (mg/dl)", xlab = "Máquina")
 
 p2 <- xyplot(Trig_Int ~ Maquina, groups = Dia, data = datos,
              type = c("p", "a"), lwd=2,
              auto.key = list(columns = 4, title = "Día", cex=0.8),
-             main = "Escenario B: SIN INTERACCIÓN\n(Tendencias Paralelas)",
+             main = "Escenario sin interacción",
              ylab = "Triglicéridos (mg/dl)", xlab = "Máquina")
 
 # 3. Dibujar en mosaico (1 fila, 2 columnas)
 print(p1, position = c(0, 0, 0.5, 1), more = TRUE)
 print(p2, position = c(0.5, 0, 1, 1))
 ```
+*Código para crear el gráfico anterior*
+
+```{r, eval=FALSE}
+library(lattice)
+xyplot(Y ~ Maquina, groups = Dia, data = datos,
+             type = c("p", "a"), lwd=2,
+             auto.key = list(columns = 4, title = "Día", cex=0.8),
+             main = "Escenario A: CON INTERACCIÓN\n(Tendencias Cruzadas)",
+             ylab = "Triglicéridos (mg/dl)", xlab = "Máquina")
+```
+
+
+**Gráfico de puntos para la interacción**
+
+El siguiente gráfico normalmente se utliza debido a que es una cantidad de observaciones pequeña.
+
+En este experimento se tiene un estudio con 2 niveles con un factor en el nivel 1 , lo que corresponde a lo que conocemos como un diseño de bloques.
+
+Tenenos dos varianzas: $\sigma_{\varepsilon}$ varianza del error la cual corresponde, a la de muestra a muestra dentro de un día y una muestra. Por otro lado $\sigma_{\delta}$ varianza de los efectos del día.
+
+**En ambos gráficos podemos observar que las maquinas no son consistentes (cuando hay interacción), debido a que estas no dan los mismos resultados a lo largo de los días. Por otro lado para el caso sin interacción que las maquinas son bastante consistentes**
+
+```{r, echo=FALSE}
+p1 <- dotplot(Trig_NoInt ~ Maquina, groups = Dia, data = datos,
+              type = "p", 
+              auto.key = list(columns = 4, title = "Día", cex = 0.8),
+              main = "Escenario Sin interacción",
+              ylab = "Triglicéridos (mg/dl)", xlab = "Máquina")
+
+p2 <- dotplot(Trig_Int ~ Maquina, groups = Dia, data = datos,
+              type = "p", 
+              auto.key = list(columns = 4, title = "Día", cex = 0.8),
+              main = "Escenario B Con interacción",
+              ylab = "Triglicéridos (mg/dl)", xlab = "Máquina")
+
+# 3. Dibujar en mosaico (1 fila, 2 columnas)
+# 'more = TRUE' permite que el segundo gráfico se dibuje en la misma página
+print(p1, position = c(0, 0, 0.5, 1), more = TRUE)
+print(p2, position = c(0.5, 0, 1, 1))
+```
+
+```{r, eval=FALSE}
+dotplot(Trig_NoInt ~ Maquina|Dia,xlab="día",ylab="triglicéridos", data = datos)
+```
+
+## Modelo con interacción en r {lm_int}
+
+```{r, echo=FALSE}
+trigli=c(142.3, 144.0, 148.6, 146.9, 142.9, 147.4, 133.8,
+133.2, 134.9, 146.3, 145.2, 146.3, 125.9, 127.6,
+108.9, 107.5, 148.6, 156.5, 148.6, 153.1, 135.5,
+138.9, 132.1, 149.7, 152.0, 151.4, 149.7, 152.0,
+142.9, 142.3, 141.7, 141.2)
+dia=factor(rep(1:4,each=8))
+maq=factor(rep(c("A","B","C","D"),4,each=2))
+```
+
+
+```{r}
+library(lme4)
+mod1=lmer(trigli~1+maq+(1|dia)) #Código de modelo sin interacción
+mod1_int=lmer(trigli~1+maq+(1|dia)+(1|dia:maq))
+```
+
+Observe que la interacción se coloca con `:`, de manera que se coloca con esta indicación `(1|dia:maq)`. Recuerde que los factores aletorios se colocan así `(1|factor)`.
+
+## Comparación de modelos con y sin interacción
+
+Para verificar si hay interacción o no, necesitamos probar la siguiente hipótesis:
+
+$$\begin{aligned}
+H_0 &: \sigma^2_{\tau \delta} = 0 \quad \text{(No existe interacción)} \\
+H_1 &: \sigma^2_{\tau \delta} > 0 \quad \text{(Existe interacción significativa)}
+\end{aligned}$$
+
+Esta hipótesis se puede realizar mediante el método realizado en la sección de [La prueba de la razón de verosimilitud](#sig_fact)
+
+*En r se realiza de la siguiente manera*
+
+```{r}
+anova(mod1, mod1_int, test = "LRT")
+# También se puede de esa manera anova(mod1, mod1_int, test = "Chisq")
+#, depende de la versión del R
+```
+
+```{r}
+summary(mod1)
+```
+**Observe que la variancia de día a día es 50.24 y la variancia residual es 42.89.**
 
 ## Esperanza marginal del factor de la unidad de nivel 2
 
@@ -464,7 +553,7 @@ Como el intercepto $\beta_0$ y el efecto del factor $\tau_i$ es fijo esto nos ll
 $$V(Y|i) = \sigma_i^2 = \sigma_{\delta}^2+ \sigma_{\tau\delta}^2+\sigma_\varepsilon^2$$
 
 
-# Prueba de razón de verosimilitud 
+# Prueba de razón de verosimilitud {#sig_fact}
 
 Definición de la verosimilitud creada en la clase: *La verosimilitud es que tan creíble la estimación de un parámetro, basado en los datos de la muestra. Con el objetivo de dar una medida de la credibilidad de la estimación.*
 
@@ -613,7 +702,7 @@ $$\begin{aligned}
 &\hat{\sigma^2_\delta}=\frac{CMLote-CMRes}{n}
 \end{aligned}$$
 
-## Intervalos de confianza para los modelos 
+## Intervalos de confianza para las varianzas 
 
 ```{r. eval = False}
 confint(mod1)
@@ -712,6 +801,121 @@ promedio_ancho=mean(anchos)
 print(c("El promedio del ancho es",round(promedio_ancho,3)))
 ```
 
+
+## Intervalos de confianza para las diferencias de diferentes categorías
+
+Estos intervalos los podremos realizar, siempre y cuando el modelo que estemos analizando no posea interacción, ya que si la tiene el analisis es distintos, debido a que en estos modelos podemos tener unidades inifinitas dependiendo del factor que se este analizand.
+
+Para este tema usaremos el modelo **sin interacción** presentado en la sección de [Modelo con interacción en r](##lm_int)
+
+```{r}
+summary(mod1)
+```
+Observe que `maqB = 1.8`, esto quiere decir que la maquina B es 1.8 puntos mayor que la máquina A, esto es debido a que estamos con el modelo de tratamiento de referencia y esa medida corresponde al efecto de la maquina B que se calcula de la siguiente manera $\alpha_b = \mu_b-\mu_a$. Es importante resaltar que la máquina que tiene menor media es la D. Recuerde que la restricción de referencia es $\alpha_1 = 0$
+
+```{r}
+confint(mod1)
+```
+
+**Al observar el intervalo de 95% de confianza se tiene que la desviación estándar de día a día está entre 2.9 y 15.7. Esto confirma que esta fuente de variabilidad es importante. Por lo tanto, hay evidencia que hay fuentes de variabilidad que deben revisarse para que este modelo de espectofotómetro funcione mejor. Se esperaría mayor consitencia de uno a otro día.**
+
+### Hipótesis sobre la diferencias entre categorías
+
+Basado en el mismo ejemplo de la sección anterior queremos probar lo siguiente:
+
+$$H_0:\alpha_i = 0 \space \forall_i \text{ ó }  \alpha_2 = \alpha_3 = \alpha_3$$
+La función `drop1` nos sirve para probar si las medias de las 4 maquinas son iguales que es lo mismo que probar si los efectos de las 4 maquinas son iguales a cero.
+
+```{r}
+drop1(mod1,test="Chisq")# En este caso, nos sirve para probar un factor fijo.
+#drop1(mod1_int,test="Chisq") # ESTE CÓDIGO ESTA MAL, YA QUE drop1, SOLO SIRVE PARA FIJOS
+```
+
+En el resultado la línea de `maq` es la prueba que nos sirve para probar si las medias de las 4 máquinas son iguales, que es lo mismo que probar que los efectos de las máquinas son iguales a cero **Ver hipótesis inicial**.
+
+*Para la calcularlo a pie*
+
+```{r}
+pchisq(26.058,3, lower.tail = F) # Fórmula a pie, para el chisq
+```
+
+Restamos las devianzas de los modelos y ese valor lo colocamos en el siguiente código en lugar de `26.058`, el número `3` son los grados de libertad porque el modelo que incluye máquina tiene 3 coeficientes más que el que no tiene este factor, son 3 coeficientes porque son 4 máquinas en el experimento.
+
+*Conclusión del resultado:* Con $p<0.001$ en la prueba LRT se rechaza esta hipótesis y se concluye que no se están obteniendo los mismos promedios en todas las máquinas.
+
+
+
+### Intervalos de confianza mediante la función emmeans
+
+**Correción de Bomferroni**: El profesor recomienda realizar este ya que es más seguro, debido a que se trata de un modelo mixto
+
+```{r}
+library(emmeans)
+em.mod1=emmeans(mod1,pairwise~maq,adjust="bonferroni")
+#emmeans(mod1,pairwise~factor_fijo,adjust="bonferroni")
+em.mod1
+```
+
+
+El `p-value` se compara contra $\alpha$, ya que la función hace la correción de una vez.
+
+**Tuckey**
+
+```{r, echo=FALSE}
+em.mod2=emmeans(mod1,pairwise~maq) #Realizados mediante prueba tuckey
+```
+
+### Comparaciones para el nivel de significancia $\alpha$ cuando se usa emmeans (Bonferroni)
+
+
+| Tipo de Prueba | Emmeans | A pie (Manual) |
+| :--- | :---: | :---: |
+| **Una cola** | $\frac{p}{2} < \alpha$ | $p < \frac{\alpha}{d}$ |
+| **Dos colas** | $p < \alpha$ | $p < \frac{\alpha}{2d}$ |
+
+
+### Proceso manual para la creación de intervalos de confianza
+
+Dado el siguiente modelo:
+
+$y_{ijk}=\beta_0+\tau_i+\delta_i$
+
+donde:
+
++ $\tau_i$: Es el efecto de la maquina i-ésima
+
++ $\delta_i$: Ese es el efecto del día (recuerde que este aleatorio)
+
+```{r}
+contrasts(maq)
+```
+```{r, echo=FALSE}
+mod1=lmer(trigli~1+maq+(1|dia))
+```
+
+```{r}
+A=c(0,0,0,0)
+B=c(0,1,0,0)
+AB=A-B
+ee = as.numeric(sqrt(t(AB)%*%vcov(mod1)%*%AB))
+coef = fixef(mod1)
+t = t(AB)%*%coef
+t_calculado = as.numeric(t / ee)
+n = nrow(datos)
+p = length(coef)
+gl = n-p
+p_valor = 2 * pt(abs(t_calculado), df =gl, lower.tail = FALSE)
+cat("Estimación:", t, "\nSE:", ee, "\nt-stat:", t_calculado, "\np-val:", p_valor)
+```
+
+```{r}
+C=c(0,0,1,0)
+D=c(0,0,0,1)
+CD=C-D
+sqrt(t(CD)%*%vcov(mod1)%*%CD)
+```
+
+Observe que el error estándar es igual al obtenido en la función `emmeans`.
 
 ```{r, eval=FALSE}
 # Este código se verá bonito en el manual, pero R NO lo ejecutará.
