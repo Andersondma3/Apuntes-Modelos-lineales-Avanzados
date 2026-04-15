@@ -151,9 +151,7 @@ Interpretaciones: Para cada interpretación se toma el nombre de la subgrupo de 
 
 Es un indicador muy utilizado para medir longevidad
 
-$$
-\text{Razón de longevidad} = \frac{N_{+75\text{años}}}{N_{+65\text{años}}}
-$$
+$$\text{Razón de longevidad} = \frac{N_{+75\text{años}}}{N_{+65\text{años}}}$$
 
 Interpretación:
 
@@ -164,7 +162,7 @@ Es un indicador muy utilizado para medir fecundidad
 Fórmula:
 
 $$
-\text{Razón Niño/Mujer} = \frac{N_{0-14}}{NF_{15-49}}*100
+\text{Razón Niño/Mujer} = \frac{N_{0-4}}{NF_{15-49}}*100
 $$
 
 Interpretación:
@@ -191,7 +189,7 @@ Y existen medidas para analizar la calidad en la declaración de la edad:
 
 El índice de Whipple se usa para medir la atracción de un dígito final en la declaración de la edad, sobre todo el 5 y el 0. Y este utiliza el supuesto de que los dígitos finales de las edades siguen una distribución uniforme.
 
-Fórumulas:
+Fórmulas:
 
 $$
 \begin{aligned}
