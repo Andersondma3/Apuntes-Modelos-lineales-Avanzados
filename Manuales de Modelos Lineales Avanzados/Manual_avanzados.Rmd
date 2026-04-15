@@ -897,7 +897,15 @@ mod1=lmer(trigli~1+maq+(1|dia))
 A=c(0,0,0,0)
 B=c(0,1,0,0)
 AB=A-B
-sqrt(t(AB)%*%vcov(mod1)%*%AB)
+ee = as.numeric(sqrt(t(AB)%*%vcov(mod1)%*%AB))
+coef = fixef(mod1)
+t = t(AB)%*%coef
+t_calculado = as.numeric(t / ee)
+n = nrow(datos)
+p = length(coef)
+gl = n-p
+p_valor = 2 * pt(abs(t_calculado), df =gl, lower.tail = FALSE)
+cat("Estimación:", t, "\nSE:", ee, "\nt-stat:", t_calculado, "\np-val:", p_valor)
 ```
 
 ```{r}
