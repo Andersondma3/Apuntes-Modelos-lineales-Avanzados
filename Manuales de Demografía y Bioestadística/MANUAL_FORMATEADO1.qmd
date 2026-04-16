@@ -28,7 +28,7 @@ format:
       - right=30mm
 ---
 
-# 1. Fundamentos y Conceptos Operativos
+# Fundamentos y Conceptos Operativos
 
 La **demografía** es la ciencia que estudia a las poblaciones humanas en cuanto a su dimensión, estructura y evolución \[5\]. Se distingue de los estudios de población en que estos analizan determinantes y consecuencias desde disciplinas como la sociología o la economía.
 
@@ -39,7 +39,7 @@ La **demografía** es la ciencia que estudia a las poblaciones humanas en cuanto
 
 ------------------------------------------------------------------------
 
-# 2. Composición de la Población: Sexo y Edad
+# Composición de la Población: Sexo y Edad
 
 El análisis de la estructura poblacional permite identificar subgrupos y dinámicas de dependencia.
 
@@ -51,14 +51,15 @@ $$\text{RM} = \frac{N_{Masc}}{N_{Fem}} \times 100$$
 
 **Interpretación:** Si $RM = 90$, hay 90 hombres por cada 100 mujeres \[7\]. **Observación:** Al nacer suele ser $\approx 105$ y tiende a descender con la edad en poblaciones sin alta mortalidad materna.
 
-``` r
-#| eval: false
+```{r}
+#| eval: true
+#| echo: false
 #| include: false
 
 library(readxl)
 library(tidyverse)
 # Colocar dirección cada vez que se corre todo
-base = read_excel("C:/Users/Ander/Documents/V ciclo statistics/Demografía/lab composición población/razones_lab1.xlsx") 
+base = read_excel("~/GitHub/Manuals_of_statistics/Manuales de Demografía y Bioestadística/razones_lab1.xlsx") 
 
 df_long <- base %>%
   pivot_longer(
@@ -69,8 +70,30 @@ df_long <- base %>%
   mutate(Anio = as.numeric(Anio)) # Convertir año a número para el eje X
 ```
 
-``` r
+```r
 #| eval: false
+
+# Librerías
+library(ggplot2) 
+library(dplyr)
+#o bien puede cargar library(tidyverse) 
+ggplot(df_long, aes(x = Edadsimple, y = Razon_Masculinidad, color = factor(Anio)))+
+  geom_line(size = 1) +
+  geom_point() +
+  labs(
+    title = "Razón de masculinidad en Costa Rica en los años \n1973,1984, 2000, 2011
+",
+    x = "Edad Simple",
+    y = "Razón de Masculinidad",
+    color = "Año"
+  ) +
+  theme_minimal()
+```
+
+```{r, warning=FALSE}
+#| eval: true
+#| echo: true
+#| include: true
 
 # Librerías
 library(ggplot2) 
@@ -91,9 +114,7 @@ ggplot(df_long, aes(x = Edadsimple, y = Razon_Masculinidad, color = factor(Anio)
 
 ### Pirámides de Población
 
-``` r
-#| eval: false
-#| include: false
+```r
 ggplot(df_final, aes(x = Edadsimple, y = Poblacion, fill = Sexo)) +
   geom_bar(stat = "identity", width = 1) +
   coord_flip()
@@ -117,7 +138,7 @@ $$\begin{aligned} \text{Razón de dependencia} &= \frac{N_{0-14} + N_{65+}}{N_{1
 
 ------------------------------------------------------------------------
 
-# 3. Calidad de la Información (Declaración de la Edad)
+# Calidad de la Información (Declaración de la Edad)
 
 La calidad se ve afectada por omisión diferenciada, preferencia de dígitos o exageración de la edad.
 
@@ -139,9 +160,7 @@ I_W (\text{Solo dígito 5}) &= \frac{10 \times (N_{25} + N_{35} + N_{45} + N_{55
 | 125 a 174   | Deficiente                      |
 | 175 o más   | Muy deficiente                  |
 
-``` r
-#| eval: false
-
+```r
 indice_whipple <- base %>% 
   filter(Edadsimple >= 23 & Edadsimple <= 62) %>%
   group_by(Año) %>% # Agrupamos por año 
@@ -170,9 +189,7 @@ $$M_j = (j + 1) \times v_j + (10 - j) \times v'_j$$ $$I_M = 100 \times \sum_{j=0
 | 15 a 29.99  | Alta concentración         |
 | 30 a más    | Muy alta concentración     |
 
-``` r
-#| eval: false
-
+```r
 # Rango de edades: 10 a 79
 rango_myers <- base %>%
   filter(Edadsimple >= 10 & Edadsimple <= 79) %>%
@@ -205,7 +222,7 @@ indice_myers_final <- myers_calculo %>%
 
 ------------------------------------------------------------------------
 
-# 4. Medidas Demográficas Relativas y Estandarización
+# Medidas Demográficas Relativas y Estandarización
 
 -   **Tasa Operativa:** $Tasa = \frac{\text{Eventos en } t}{P_{mid} \text{ en } t}$ \[13\].
 -   **Probabilidad de muerte (**$q_0$): $q_0 = \frac{D_{0, cohorte X}}{B_{cohorte X}}$ \[14\].
@@ -215,7 +232,7 @@ indice_myers_final <- myers_calculo %>%
 
 ------------------------------------------------------------------------
 
-# 5. Dinámica Demográfica y Modelos de Crecimiento
+# Dinámica Demográfica y Modelos de Crecimiento
 
 ## Suavizamiento
 
@@ -237,8 +254,7 @@ $$N_{t+k} = N_t + B_{t,t+k} - D_{t,t+k} + I_{t,t+k} - E_{t,t+k}$$ Usando el Sald
 
 **Cálculo de tasa:** $r_a = \frac{1}{t} \times \left( \frac{N_F}{N_0} - 1 \right)$
 
-``` r
-#| eval: false
+```r
 # Cálculo de la tasa r 
 r <- (1/t)*((N_final/N_0)-1)   
 # Estimación 
@@ -249,8 +265,7 @@ N_t = N_pivote * (1 + r*t_prima)
 
 **Cálculo de tasa:** $rg = (\frac{N_F}{N_0})^{1/t} - 1$
 
-``` r
-#| eval: false
+```r
 r = (N_final/N_0)^(1/t) - 1 
 N_t = N_pivote * (1 + r)^t_prima
 ```
@@ -259,8 +274,7 @@ N_t = N_pivote * (1 + r)^t_prima
 
 **Cálculo de tasa:** $re = \frac{1}{t} \ln(\frac{N_F}{N_0})$
 
-``` r
-#| eval: false
+```r
 r = log(N_final / N_0) * (1/t) 
 N_t = N_pivote * exp(r * t_prima)
 ```
@@ -277,8 +291,7 @@ Se deben calcular los tiempos transcurridos ($t$) y los tiempos desde el pivote 
 
 $$t = (Año_f - Año_0) - \frac{1}{12}(Mes_f - Mes_0) - \frac{1}{365.25}(Día_f - Día_0)$$
 
-``` r
-#| eval: false
+```r
 #| label: calculo-t-lubridate 
 library(lubridate) 
 fecha0 = ymd("2020-01-01") 
